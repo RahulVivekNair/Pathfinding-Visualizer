@@ -4,8 +4,8 @@ import sys
 
 window_width = 600
 window_height = 600
-columns=25
-rows=25
+columns=30
+rows=30
 
 window = pygame.display.set_mode((window_width, window_height))
 
@@ -15,7 +15,6 @@ box_height= window_height // rows
 grid=[]
 queue=[]
 path=[]
-
 class Box:
     def __init__(self,i,j):
         self.x=i
@@ -29,7 +28,7 @@ class Box:
         self.neighbours=[]
 
     def draw(self,win,color):
-        pygame.draw.rect(win,color,(self.x*box_width,self.y*box_height,box_width-2,box_height-2))
+        pygame.draw.rect(win,color,(self.x*box_width,self.y*box_height,box_width,box_height))
 
     def set_neighbours(self):
         if self.x > 0:
@@ -61,7 +60,7 @@ def main():
     searching = True
     target_box = None
     start_box = None
-    
+    c=1
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -93,10 +92,14 @@ def main():
                     if i<rows and j<columns:
                         grid[i][j].wall = True
                 
-            if event.type == pygame.KEYDOWN and target_box_set and start_box_set:
-                begin_search = True
+            #if event.type == pygame.KEYDOWN and target_box_set and start_box_set:
+                #begin_search = True
+            if event.type == pygame.KEYDOWN:
+                # If the user presses the enter button the algorithm will start
+                if event.key == pygame.K_SPACE and target_box_set and start_box_set:
+                    begin_search = True
 
-        if begin_search:
+        if begin_search and c==1:
             if len(queue) > 0 and searching:
                 current_box = queue.pop(0)
                 current_box.visited = True
@@ -116,23 +119,34 @@ def main():
                     Tk().wm_withdraw()
                     messagebox.showinfo("No Solution", "There is no solution!")
                     searching = False
+        if begin_search and c==2:
+             pass
 
         window.fill((0,0,0))
         for i in range(rows):
             for j in range(columns):
                 box = grid[i][j]
-                box.draw(window, (50, 50, 50))
+                box.draw(window, (75, 75, 75))
+                
                 if box.queued:
                     box.draw(window, (200, 0, 0))
                 if box.visited:
                     box.draw(window, (0, 200, 0))
                 if box in path:
-                    box.draw(window, (0, 0, 200))
+                    box.draw(window, (128, 0, 128))
                 if box.starting:
                     box.draw(window, (0, 200, 200))
                 if box.wall:
                     box.draw(window, (10, 10, 10))
                 if box.ending:
                     box.draw(window, (200, 200, 0))
+        gap = window_width // rows
+    # Making the horizontal gridlines
+        for row in range(1,rows):
+            pygame.draw.line(window, (0,0,0), (0, row * gap), (window_width, row * gap))
+        # Making the vertical gridlines
+            for col in range(1,columns):
+                pygame.draw.line(window, (0,0,0), (col * gap, 0), (col * gap, window_width))
         pygame.display.update()
+    
 main()
